@@ -1,6 +1,7 @@
 # خوارزمية البناء — Algorithm Deep Dive
 
-> Task 5 · Part 1 — Smart Methods Mechanics · 2026
+> **الجزء الأول فقط (Task 1)** — مشروع هذا العام الكبير  
+> **لا علاقة له** بتجميعة Onshape في Task 2
 
 ---
 
