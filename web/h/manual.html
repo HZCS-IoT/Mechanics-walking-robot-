@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحكم يدوي — Robot Dog</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-icon">🎮</div>
+        <div>
+          <h1>التحكم اليدوي</h1>
+          <p>Manual Control · MQTT · Smart Methods</p>
+        </div>
+      </div>
+      <a class="back-link" href="index.html">← رجوع للاختيار</a>
+    </div>
+
+    <div class="card control-wrap">
+      <div id="mqttStatus" class="status" style="margin-bottom:10px;">MQTT: جاري الاتصال...</div>
+      <div id="status" class="status">جاهز — اضغط أي زر لإرسال الأمر</div>
+
+      <div class="control-pad simple">
+        <button class="pad-btn forward" data-command="forward">
+          ↑
+          <span class="pad-label">أمام / forward</span>
+        </button>
+        <button class="pad-btn stop" data-command="stop">
+          ■
+          <span class="pad-label">وقوف / stop</span>
+        </button>
+        <button class="pad-btn backward" data-command="backward">
+          ↓
+          <span class="pad-label">خلف / backward</span>
+        </button>
+      </div>
+
+      <p class="hint" style="margin-top:18px;">اختر يد التلويح ثم اضغط تلويح</p>
+      <div class="hand-pick">
+        <label>
+          <input type="radio" name="hand" value="wave_left" checked>
+          يسار FL
+          <span>wave left</span>
+        </label>
+        <label>
+          <input type="radio" name="hand" value="wave_right">
+          يمين FR
+          <span>wave right</span>
+        </label>
+      </div>
+      <button class="pad-btn wave" id="waveBtn" type="button">
+        👋 تلويح / Wave
+      </button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script src="js/api.js?v=6"></script>
+  <script>
+    const statusEl = document.getElementById('status');
+
+    async function runCommand(command) {
+      setStatus(statusEl, 'جاري الإرسال عبر MQTT...');
+      try {
+        const data = await sendRobotCommand(command);
+        setStatus(statusEl, data.message, 'ok');
+      } catch (error) {
+        setStatus(statusEl, error.message || 'فشل MQTT', 'error');
+      }
+    }
+
+    document.querySelectorAll('[data-command]').forEach((button) => {
+      button.addEventListener('click', () => runCommand(button.dataset.command));
+    });
+
+    document.getElementById('waveBtn').addEventListener('click', () => {
+      const hand = document.querySelector('input[name="hand"]:checked').value;
+      runCommand(hand);
+    });
+  </script>
+</body>
+</html>

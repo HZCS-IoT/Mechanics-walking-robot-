@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>RoboDog — Smart Methods</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; color: #38bdf8; }
+    .sub { font-size: 0.85rem; color: #94a3b8; margin-bottom: 20px; }
+    .status {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-bottom: 24px;
+      background: #1e293b;
+    }
+    .status.ok { color: #4ade80; }
+    .status.err { color: #f87171; }
+    .grid {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+      max-width: 320px;
+    }
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #fff;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+    button:active { transform: scale(0.97); opacity: 0.85; }
+    .fwd { background: #059669; }
+    .back { background: #d97706; }
+    .stand { background: #475569; font-size: 0.95rem; padding: 14px; }
+    .wave { background: #7c3aed; }
+    .pick {
+      display: flex;
+      gap: 8px;
+      margin: 4px 0;
+    }
+    .pick label {
+      flex: 1;
+      text-align: center;
+      padding: 12px;
+      border-radius: 12px;
+      background: #1e293b;
+      border: 2px solid #334155;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .pick input { display: none; }
+    .pick input:checked + span { color: #38bdf8; font-weight: 700; }
+    .pick label:has(input:checked) { border-color: #38bdf8; background: #1e3a5f; }
+    footer { margin-top: 28px; font-size: 0.75rem; color: #64748b; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>RoboDog BodyV2</h1>
+  <p class="sub">Smart Methods — MQTT Control</p>
+  <div id="status" class="status">جاري الاتصال...</div>
+
+  <div class="grid">
+    <button class="fwd" onclick="send('f')">أمام</button>
+    <button class="back" onclick="send('b')">خلف</button>
+
+    <p style="text-align:center;font-size:0.9rem;color:#94a3b8;margin-top:8px">اختر يد التلويح</p>
+    <div class="pick">
+      <label><input type="radio" name="hand" value="wL" checked><span>يسار FL</span></label>
+      <label><input type="radio" name="hand" value="wR"><span>يمين FR</span></label>
+    </div>
+    <button class="wave" onclick="wave()">تلويح</button>
+    <button class="stand" onclick="send('S')">وقوف (Neutral)</button>
+  </div>
+
+  <footer>Topic: smartmethods/robodog/command</footer>
+
+  <script>
+    const TOPIC = 'smartmethods/robodog/command';
+    const statusEl = document.getElementById('status');
+    let client;
+
+    function setStatus(ok, msg) {
+      statusEl.textContent = msg;
+      statusEl.className = 'status ' + (ok ? 'ok' : 'err');
+    }
+
+    client = mqtt.connect('wss://broker.hivemq.com:8884/mqtt', {
+      clientId: 'web_' + Math.random().toString(16).slice(2, 10),
+      clean: true,
+      reconnectPeriod: 3000
+    });
+
+    client.on('connect', () => setStatus(true, 'متصل — جاهز'));
+    client.on('reconnect', () => setStatus(false, 'إعادة اتصال...'));
+    client.on('error', () => setStatus(false, 'خطأ اتصال MQTT'));
+    client.on('offline', () => setStatus(false, 'غير متصل'));
+
+    function send(cmd) {
+      if (!client.connected) { setStatus(false, 'غير متصل'); return; }
+      client.publish(TOPIC, cmd, { qos: 0 });
+      setStatus(true, 'أُرسل: ' + cmd);
+    }
+
+    function wave() {
+      const hand = document.querySelector('input[name="hand"]:checked').value;
+      send(hand);
+    }
+  </script>
+</body>
+</html>

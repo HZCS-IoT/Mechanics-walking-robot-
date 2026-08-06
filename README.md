@@ -59,6 +59,21 @@
 
 ---
 
+## 📂 RoboDog BodyV2 — التحكم (ESP32 + MQTT)
+
+> كلب رباعي SG90 — مشي · مصافحة · لوحة جوال/صوت · MQTT
+
+**📄 [الدليل الكامل من الألف للياء ←](docs/robodog/README.md)**
+
+| | |
+|--|--|
+| Firmware | [`esp32/robodog_mqtt/`](esp32/robodog_mqtt/) |
+| Control Panel | [`web/h/`](web/h/) |
+| فيديو | [3 فيديوهات YouTube](docs/robodog/README.md#11-فيديوهات-youtube) |
+| ملاحظة | المشي **بطي** — **لا grip** في الأقدام → اضغط أمام **عدة مرات** |
+
+---
+
 ## 📁 هيكل المستودع
 
 ```
@@ -67,8 +82,11 @@ Mechanics/
 ├── docs/
 │   ├── TASK-1-ALGORITHM.md        ← الجزء 1: مشروع العام (بحث)
 │   ├── TASK-2-EXPLODED-VIEW.md    ← الجزء 2: Onshape (منفصل)
+│   ├── robodog/                   ← RoboDog BodyV2: ESP32 + MQTT + لوحة تحكم
 │   ├── ALGORITHM.md               ← Deep dive — الجزء 1
 │   └── SOURCES.md                 ← مصادر (قسمان منفصلان)
+├── esp32/robodog_mqtt/            ← Firmware
+├── web/h/                         ← Control panel (InfinityFree)
 ├── assets/reference-images/
 └── LICENSE
 ```

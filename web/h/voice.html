@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحكم بالصوت — Robot Dog</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-icon">🎤</div>
+        <div>
+          <h1>التحكم بالصوت</h1>
+          <p>Speech to Text + Robot Control</p>
+        </div>
+      </div>
+      <a class="back-link" href="index.html">← رجوع للاختيار</a>
+    </div>
+
+    <div class="card">
+      <div id="mqttStatus" class="status" style="margin-bottom:10px;">MQTT: جاري الاتصال...</div>
+      <div id="status" class="status">جاهز — استخدم Chrome أو Edge</div>
+
+      <div class="lang-panel">
+        <p class="lang-panel-title">اختر لغة الأوامر الصوتية</p>
+        <div class="lang-switch">
+          <button type="button" class="lang-btn active" data-lang="ar">
+            <span class="lang-flag">🇸🇦</span>
+            <span>عربي</span>
+          </button>
+          <button type="button" class="lang-btn en" data-lang="en">
+            <span class="lang-flag">🇬🇧</span>
+            <span>English</span>
+          </button>
+        </div>
+        <p id="langNote" class="lang-note">عربي: للأمام، للخلف، قف، سلم / صافح (يمين)، صافح يسار، اجلس</p>
+      </div>
+
+      <div class="steps-box">
+        <p><strong>1.</strong> اختر اللغة ↑ (عربي للأوامر العربية — English لـ forward / shake hands)</p>
+        <p><strong>2.</strong> اضغط 🎤 مرة واحدة وانتظر يصير <strong>أحمر</strong></p>
+        <p><strong>3.</strong> تكلم باللغة اللي اخترتها</p>
+        <p><strong>4.</strong> التسجيل يوقف تلقائيًا بعد ما تسكت</p>
+      </div>
+
+      <div id="listeningBadge" class="listening-badge">🔴 جاري الاستماع... تكلم الآن</div>
+      <div id="liveText" class="live-text"></div>
+
+      <div id="chatBox" class="chat-box">
+        <div class="message bot">
+          <strong>أمثلة:</strong> قل <strong>سلم</strong> أو <strong>صافح</strong> → تلويح يمين.<br>
+          قل <strong>صافح يسار</strong> → تلويح يسار.<br>
+          للإنجليزي اختر <strong>English</strong> فوق ثم قل <strong>shake hands</strong> أو <strong>wave right</strong>.
+        </div>
+      </div>
+
+      <div class="mic-wrap">
+        <button id="micBtn" class="mic-btn" type="button" aria-label="تسجيل">🎤</button>
+      </div>
+
+      <h3 class="section-title">أوامر عربي 🇸🇦</h3>
+      <div class="command-guide">
+        <div class="command-item"><span>للأمام / قدام</span><strong>↑ أمام</strong></div>
+        <div class="command-item"><span>للخلف / ورا</span><strong>↓ خلف</strong></div>
+        <div class="command-item"><span>قف / توقف / وقوف</span><strong>■ stop</strong></div>
+        <div class="command-item"><span>سلم / صافح / مرحبا</span><strong>👋 يمين</strong></div>
+        <div class="command-item"><span>صافح يسار / تلويح يسار</span><strong>👋 يسار</strong></div>
+        <div class="command-item"><span>اجلس</span><strong>🐕 sit</strong></div>
+      </div>
+
+      <h3 class="section-title">English commands 🇬🇧</h3>
+      <div class="command-guide">
+        <div class="command-item"><span>forward / backward</span><strong>↑ ↓</strong></div>
+        <div class="command-item"><span>stop / stand</span><strong>■</strong></div>
+        <div class="command-item"><span>shake hands / wave right / hi</span><strong>👋 right</strong></div>
+        <div class="command-item"><span>wave left</span><strong>👋 left</strong></div>
+        <div class="command-item"><span>sit</span><strong>🐕</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script src="js/api.js?v=6"></script>
+  <script src="js/voice-commands.js?v=6"></script>
+  <script>
+    var statusEl = document.getElementById('status');
+    var chatBox = document.getElementById('chatBox');
+    var micBtn = document.getElementById('micBtn');
+    var liveTextEl = document.getElementById('liveText');
+    var listeningBadge = document.getElementById('listeningBadge');
+    var langNoteEl = document.getElementById('langNote');
+    var langButtons = document.querySelectorAll('.lang-btn');
+
+    var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognition = null;
+    var listening = false;
+    var voiceLang = 'ar';
+
+    try { voiceLang = localStorage.getItem('voiceLang') || 'ar'; } catch (e) {}
+
+    var ERROR_MESSAGES = {
+      'not-allowed': 'الميكروفون مرفوض — اضغط 🔒 واسمح بالميكروفون',
+      'no-speech': 'ما سمعنا كلام — اضغط 🎤 وانتظر الأحمر ثم تكلم',
+      'network': 'خطأ شبكة — Speech Recognition يحتاج إنترنت',
+      'aborted': 'تم إيقاف التسجيل',
+      'audio-capture': 'ما لقينا ميكروفون',
+      'service-not-allowed': 'المتصفح منع الخدمة — جرّب Chrome'
+    };
+
+    function addMessage(text, type) {
+      var div = document.createElement('div');
+      div.className = 'message ' + type;
+      div.innerHTML = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function showListening(active) {
+      listening = active;
+      micBtn.classList.toggle('listening', active);
+      micBtn.classList.toggle('is-listening', active);
+      listeningBadge.classList.toggle('show', active);
+      if (!active) liveTextEl.textContent = '';
+    }
+
+    function applyLangUI() {
+      langButtons.forEach(function(btn) {
+        btn.classList.toggle('active', btn.dataset.lang === voiceLang);
+      });
+      langNoteEl.textContent = getLangHint(voiceLang);
+      if (recognition) recognition.lang = getRecognitionLang(voiceLang);
+      try { localStorage.setItem('voiceLang', voiceLang); } catch (e) {}
+    }
+
+    if (location.protocol === 'file:') {
+      setStatus(statusEl, 'افتح الموقع من InfinityFree — file:// ما يشتغل', 'error');
+      micBtn.disabled = true;
+    } else if (!SpeechRecognition) {
+      setStatus(statusEl, 'استخدم Chrome أو Edge', 'error');
+      micBtn.disabled = true;
+    } else {
+      recognition = new SpeechRecognition();
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 1;
+      applyLangUI();
+
+      langButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          voiceLang = btn.dataset.lang;
+          applyLangUI();
+          setStatus(statusEl, getLangHint(voiceLang), 'ok');
+        });
+      });
+
+      recognition.onstart = function() {
+        showListening(true);
+        setStatus(statusEl, '🔴 جاري الاستماع — تكلم الآن');
+      };
+
+      recognition.onend = function() {
+        showListening(false);
+      };
+
+      recognition.onerror = function(event) {
+        showListening(false);
+        var message = ERROR_MESSAGES[event.error] || ('خطأ: ' + event.error);
+        setStatus(statusEl, message, 'error');
+        addMessage(message, 'bot');
+      };
+
+      recognition.onresult = function(event) {
+        var interim = '';
+        var finalText = '';
+        var i, part;
+
+        for (i = event.resultIndex; i < event.results.length; i++) {
+          part = event.results[i][0].transcript;
+          if (event.results[i].isFinal) finalText += part;
+          else interim += part;
+        }
+
+        if (interim) liveTextEl.textContent = '🎙️ ' + interim;
+        if (!finalText.trim()) return;
+
+        var text = finalText.trim();
+        liveTextEl.textContent = '';
+        addMessage(text, 'user');
+
+        var command = parseVoiceCommand(text);
+
+        if (!command) {
+          addMessage('ما فهمت الأمر — جرّب: <strong>سلم</strong> أو <strong>forward</strong> أو <strong>shake hands</strong>', 'bot');
+          setStatus(statusEl, 'أمر غير معروف', 'error');
+          saveSpeechText(text).catch(function() {});
+          return;
+        }
+
+        setStatus(statusEl, 'جاري الإرسال عبر MQTT...');
+
+        sendRobotCommand(command)
+          .then(function(data) {
+            addMessage('تم تنفيذ: <strong>' + getCommandLabel(command) + '</strong> — ' + data.message, 'bot');
+            setStatus(statusEl, data.message, 'ok');
+            saveSpeechText(text).catch(function() {});
+          })
+          .catch(function(err) {
+            addMessage('فشل: ' + (err.message || 'خطأ'), 'bot');
+            setStatus(statusEl, err.message || 'فشل MQTT', 'error');
+          });
+      };
+
+      micBtn.addEventListener('click', function() {
+        if (listening) {
+          recognition.stop();
+          showListening(false);
+          return;
+        }
+        showListening(true);
+        setStatus(statusEl, '🔴 جاري تشغيل الميكروفون...');
+        try {
+          recognition.lang = getRecognitionLang(voiceLang);
+          recognition.start();
+        } catch (e) {
+          showListening(false);
+          setStatus(statusEl, 'انتظر ثانية ثم اضغط 🎤 مرة واحدة', 'error');
+        }
+      });
+    }
+  </script>
+</body>
+</html>
