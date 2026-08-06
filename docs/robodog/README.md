@@ -64,7 +64,7 @@
 
 | # | ماذا تسوي | أين في المستودع | ملاحظة |
 |---|-----------|-----------------|--------|
-| **1** | Clone المستودع | GitHub → `Mechanics/` | [الرابط](https://github.com/HZCS-IoT/mechanics-Algorithm-exploded-view-) |
+| **1** | Clone المستودع | `Mechanics-walking-robot-` | [الرابط](https://github.com/HZCS-IoT/Mechanics-walking-robot-) |
 | **2** | اقرأ الدليل (هذا الملف) | `docs/robodog/README.md` | من الألف للياء |
 | **3** | افهم LEDC (لا Servo.h) | [`docs/robodog/05-ESP32-LEDC.md`](05-ESP32-LEDC.md) | مهم قبل الرفع |
 | **4** | شبّك الأسلاك | [`esp32/robodog_mqtt/`](../../esp32/robodog_mqtt/) + [فيديو التشبيك](#12-فيديوهات-تعليمية-للمتابعين) | FL=16 FR=4 RL=25 RR=22 |
