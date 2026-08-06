@@ -1,21 +1,29 @@
-// MQTT for InfinityFree → ESP32
-// Cache bust: load as api.js?v=6
+/*
+ * api.js — ربط لوحة التحكم بـ MQTT → ESP32
+ * Smart Methods — RoboDog BodyV2
+ *
+ * يُحمّل في manual.html و voice.html
+ * يحتاج mqtt.min.js (CDN أو محلي)
+ */
 
-const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt';
-const MQTT_TOPIC = 'smartmethods/robodog/command';
+// ═══ إعدادات MQTT — يجب أن تطابق robodog_mqtt.ino ═══
+const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt'; // WSS للمتصفح (HTTPS)
+const MQTT_TOPIC = 'smartmethods/robodog/command';       // نفس Topic في ESP32
 
+// ═══ تحويل اسم الزر/الصوت → حرف يرسل عبر MQTT ═══
 const CMD_LETTER = {
-  forward: 'f',
-  backward: 'b',
-  stop: 'S',
-  wave_left: 'wL',
-  wave_right: 'wR',
-  sit: 'j'
+  forward: 'f',       // أمام
+  backward: 'b',      // خلف
+  stop: 'S',          // وقوف
+  wave_left: 'wL',    // مصافحة يسار
+  wave_right: 'wR',   // مصافحة يمين
+  sit: 'j'            // جلس
 };
 
 let mqttClient = null;
 let mqttConnected = false;
 
+// ─── تحديث شارة حالة MQTT في الصفحة ───
 function setMqttBadge(text, ok) {
   const el = document.getElementById('mqttStatus');
   if (!el) return;
@@ -23,6 +31,7 @@ function setMqttBadge(text, ok) {
   el.style.color = ok ? '#22c55e' : '#f87171';
 }
 
+// ─── الاتصال بـ Broker (Promise — للانتظار قبل الإرسال) ───
 function initMqtt() {
   return new Promise(function (resolve, reject) {
     if (typeof mqtt === 'undefined') {
@@ -85,6 +94,7 @@ function initMqtt() {
   });
 }
 
+// ─── نشر حرف واحد على Topic ───
 function publishMqtt(command) {
   var letter = CMD_LETTER[command];
   if (!letter) return Promise.reject(new Error('unknown command'));
@@ -99,6 +109,7 @@ function publishMqtt(command) {
   });
 }
 
+// ─── الدالة الرئيسية — تُستدعى من الأزرار أو الصوت ───
 async function sendRobotCommand(command) {
   var letter;
   try {
@@ -107,13 +118,14 @@ async function sendRobotCommand(command) {
     throw new Error('MQTT ما وصل: ' + (e.message || e));
   }
 
+  // اختياري: حفظ في PHP إن وُجد على الاستضافة (لا يؤثر على ESP32)
   try {
     await fetch('update_command.php?command=' + encodeURIComponent(command), {
       method: 'GET',
       credentials: 'same-origin'
     });
   } catch (e) {
-    // optional DB log — MQTT is what matters
+    // تجاهل — المهم MQTT
   }
 
   return {
@@ -125,6 +137,7 @@ async function sendRobotCommand(command) {
   };
 }
 
+// ─── حفظ نص الصوت (اختياري — voice.html) ───
 async function saveSpeechText(text) {
   var response = await fetch(
     'save_speech.php?text=' + encodeURIComponent(text),
@@ -137,11 +150,13 @@ async function saveSpeechText(text) {
   return data;
 }
 
+// ─── تحديث عنصر status في الصفحة ───
 function setStatus(element, text, type) {
   element.textContent = text;
   element.className = 'status' + (type ? ' ' + type : '');
 }
 
+// ─── محاولة اتصال MQTT عند فتح الصفحة ───
 document.addEventListener('DOMContentLoaded', function () {
   initMqtt().catch(function () {});
 });

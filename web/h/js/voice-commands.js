@@ -1,3 +1,11 @@
+/*
+ * voice-commands.js — تحويل الكلام إلى أمر روبوت
+ * Smart Methods — RoboDog BodyV2
+ *
+ * يُستخدم في voice.html مع api.js
+ * parseVoiceCommand(text) → 'forward' | 'wave_right' | ... | null
+ */
+
 const COMMAND_LABELS = {
   forward: 'للأمام',
   backward: 'للخلف',
@@ -87,6 +95,7 @@ const VOICE_RULES = [
   },
 ];
 
+// ─── تنظيف النص قبل المطابقة ───
 function normalizeSpeech(text) {
   return text
     .trim()
@@ -96,6 +105,7 @@ function normalizeSpeech(text) {
     .replace(/\s+/g, ' ');
 }
 
+// ─── استبدال كلمات transliteration ───
 function applyTransliterations(text) {
   let result = text;
 
@@ -113,6 +123,7 @@ function applyTransliterations(text) {
   return result;
 }
 
+// ─── البحث في VOICE_RULES ───
 function parseVoiceCommand(text) {
   const normalized = applyTransliterations(normalizeSpeech(text));
 

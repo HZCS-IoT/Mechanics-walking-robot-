@@ -1,28 +1,27 @@
 /*
- * Robot Dog — ESP32 HTTP Client (XAMPP LOCAL)
+ * Robot Dog — ESP32 HTTP Client (XAMPP LOCAL) — نسخة قديمة
  * Smart Methods — BodyV2
  *
- * Board:     ESP32 Dev Module
- * Monitor:   115200
- * Library:   (none extra — WiFi built-in)
+ * ⚠️ هذا Sketch للاختبار المحلي مع XAMPP — المشروع النهائي يستخدم MQTT:
+ *    esp32/robodog_mqtt/robodog_mqtt.ino
  *
- * Phone:  http://192.168.1.17/h/manual.html
- * ESP32:  polls get_state.php every 2 seconds
+ * Board: ESP32 Dev Module | Monitor: 115200
  */
 
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <WiFiClient.h>
 
-// ===== WiFi =====
-const char* WIFI_SSID = "STC1";
-const char* WIFI_PASS = "M05490707580";
+// ═══ WiFi — ضع بيانات شبكتك ═══
+const char* WIFI_SSID = "YOUR_WIFI_NAME";      // اسم شبكة WiFi 2.4GHz
+const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";  // كلمة سر WiFi
 
-// ===== XAMPP on laptop (same WiFi as phone + ESP32) =====
-const char* SERVER_URL = "http://192.168.1.17/h/get_state.php";
+// ═══ XAMPP على اللابتوب (نفس شبكة ESP32 والجوال) ═══
+// غيّر IP إلى IP اللابتوب من cmd: ipconfig
+const char* SERVER_URL = "http://192.168.x.x/h/get_state.php";
 
-const unsigned long POLL_MS = 2000;
-const unsigned long ERROR_LOG_MS = 10000;
+const unsigned long POLL_MS = 2000;       // كل كم ms يسأل السيرفر
+const unsigned long ERROR_LOG_MS = 10000; // تقليل تكرار رسائل الخطأ
 
 WiFiClient client;
 String lastCommand = "";
@@ -36,7 +35,6 @@ void setup() {
   Serial.println("=== Robot Dog ESP32 — XAMPP LOCAL ===");
   connectWiFi();
   Serial.println("Server: " + String(SERVER_URL));
-  Serial.println("Phone:  http://192.168.1.17/h/manual.html");
   Serial.println("Waiting for commands...");
   Serial.println();
 }
@@ -53,6 +51,7 @@ void loop() {
   }
 }
 
+// ─── الاتصال بـ WiFi ───
 void connectWiFi() {
   Serial.print("WiFi ");
   Serial.print(WIFI_SSID);
@@ -77,6 +76,7 @@ void connectWiFi() {
   }
 }
 
+// ─── طباعة خطأ كل 10 ثواني فقط (بدون spam) ───
 void logErrorThrottled(const String& msg) {
   if (millis() - lastErrorLog >= ERROR_LOG_MS) {
     lastErrorLog = millis();
@@ -84,6 +84,7 @@ void logErrorThrottled(const String& msg) {
   }
 }
 
+// ─── جلب آخر أمر من get_state.php ───
 void fetchCommand() {
   HTTPClient http;
 
@@ -129,6 +130,7 @@ void fetchCommand() {
   }
 }
 
+// ─── استخراج "command" من JSON ───
 String parseCommand(const String& json) {
   int key = json.indexOf("\"command\"");
   if (key < 0) return "";
@@ -141,6 +143,7 @@ String parseCommand(const String& json) {
   return json.substring(q1 + 1, q2);
 }
 
+// ─── ترجمة الحرف لاسم مقروء ───
 String commandLabel(const String& c) {
   if (c == "f") return "forward";
   if (c == "b") return "backward";

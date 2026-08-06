@@ -93,10 +93,10 @@
 
 1. ثبّت **ESP32 Board Package** (Core 3.x).
 2. افتح `robodog_mqtt.ino`.
-3. عدّل **WiFi** في أعلى الملف:
+3. عدّل **WiFi** في أعلى `robodog_mqtt.ino`:
    ```cpp
-   const char* WIFI_SSID = "اسم_شبكتك";
-   const char* WIFI_PASS = "كلمة_السر";
+   const char* WIFI_SSID = "YOUR_WIFI_NAME";      // اسم شبكة WiFi 2.4GHz
+   const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";  // كلمة سر WiFi
    ```
 4. اختر Board: **ESP32 Dev Module**.
 5. **افصل أسلاك السيرvo** أثناء الرفع إذا حصل reboot loop.
