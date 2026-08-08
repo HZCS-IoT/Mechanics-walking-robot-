@@ -31,7 +31,7 @@
 ### ماذا يفعل المشروع؟
 
 ```
-[جوال / لابتوب]  →  لوحة تحكم (HTML)  →  MQTT Broker  →  ESP32  →  4 سيرvo
+[جوال / لابتوب]  →  لوحة تحكم (HTML)  →  MQTT Broker  →  ESP32  →  4 سيرفو
 ```
 
 | الطبقة | التقنية |
@@ -68,7 +68,7 @@
 | **2** | اقرأ الدليل (هذا الملف) | `docs/robodog/README.md` | من الألف للياء |
 | **3** | افهم LEDC (لا Servo.h) | [`docs/robodog/05-ESP32-LEDC.md`](05-ESP32-LEDC.md) | مهم قبل الرفع |
 | **4** | شبّك الأسلاك | [فيديو YouTube ↗](https://youtu.be/DsWuTCv1QBQ) + [`esp32/robodog_mqtt/`](../../esp32/robodog_mqtt/) | FL=16 FR=4 RL=25 RR=22 |
-| **5** | اختبر سيرvo واحد | [`esp32/servo_one_io16/`](../../esp32/servo_one_io16/) | GPIO16 |
+| **5** | اختبر سيرفو واحد | [`esp32/servo_one_io16/`](../../esp32/servo_one_io16/) | GPIO16 |
 | **6** | معايرة neutral | [`esp32/robodog_calibrate/`](../../esp32/robodog_calibrate/) | انسخ القيم لـ mqtt |
 | **7** | عدّل WiFi وارفع Firmware | [`esp32/robodog_mqtt/robodog_mqtt.ino`](../../esp32/robodog_mqtt/robodog_mqtt.ino) | `YOUR_WIFI_NAME` |
 | **8** | تأكد Serial Monitor | `Ready` على 115200 | MQTT متصل |
@@ -86,7 +86,7 @@ Mechanics/
 ├── docs/robodog/          ← ابدأ هنا (1) اقرأ README + 05-LEDC + 02-MQTT
 │
 ├── esp32/
-│   ├── servo_one_io16/    ← (2) اختبار سيرvo واحد
+│   ├── servo_one_io16/    ← (2) اختبار سيرفو واحد
 │   ├── robodog_calibrate/ ← (3) معايرة الزوايا
 │   └── robodog_mqtt/      ← (4) الكود النهائي — ارفعه على ESP32
 │
@@ -103,7 +103,7 @@ Mechanics/
 - [ ] **1.** Clone + فتح `docs/robodog/README.md`
 - [ ] **2.** قراءة [`05-ESP32-LEDC.md`](05-ESP32-LEDC.md)
 - [ ] **3.** تشبيك حسب [فيديو YouTube — Breadboard + ESP32](https://youtu.be/DsWuTCv1QBQ)
-- [ ] **4.** رفع `servo_one_io16` → السيرvo يتحرك
+- [ ] **4.** رفع `servo_one_io16` → السيرفو يتحرك
 - [ ] **5.** رفع `robodog_calibrate` → تعديل neutral → نسخ للـ mqtt
 - [ ] **6.** تعديل WiFi في `robodog_mqtt.ino` → Upload
 - [ ] **7.** Serial Monitor → `Ready`
@@ -123,10 +123,10 @@ Mechanics/
 | 1 | ESP32 |
 | 2 | Breadboard + أسلاك |
 | 3 | 4× Servo SG90 (FL, FR, RL, RR) |
-| 4 | مصدر طاقة مناسب للسيرvo (USB قد لا يكفي أثناء الحركة) |
+| 4 | مصدر طاقة مناسب للسيرفو (USB قد لا يكفي أثناء الحركة) |
 | 5 | WiFi 2.4GHz (ESP32 + نفس الشبكة أو إنترنت للوحة) |
 
-### توصيل السيرvo على ESP32
+### توصيل السيرفو على ESP32
 
 | رجل | GPIO | ملاحظة |
 |-----|------|--------|
@@ -141,15 +141,15 @@ Mechanics/
 
 **[YouTube ↗ — طريقة تشبيك الروبوت](https://youtu.be/DsWuTCv1QBQ)**
 
-### ⚡ الطاقة — تشغيل 2 سيرvo فقط (لا يضر)
+### ⚡ الطاقة — تشغيل 2 سيرفو فقط (لا يضر)
 
 | نقطة | التفسير |
 |------|---------|
 | **Gait diagonal** | المشي يحرّك **زوجين فقط** في كل مرحلة: FL+RR ثم FR+RL — **مو الأربعة مع بعض** |
-| **USB محدود** | USB اللابتوب قد **ما يكفي** لتشغيل 4 سيرvoات تحت حمل — طبيعي |
-| **آمن للاختبار** | تقدر تبدأ بـ **2 سيرvo** موصولين وتختبر — **ما يضر** ESP32 |
-| **نحن شغّالين** | المشروع يعمل بـ **2 في كل خطoة** — مو لازم الأربعة يتحركون بنفس اللحظة |
-| **تحسين** | مصدر 5V خارجي (2A+) للسيرvoات إذا تبي الأربعة مع بعض لاحقًا |
+| **USB محدود** | USB اللابتوب قد **ما يكفي** لتشغيل 4 سيرفوات تحت حمل — طبيعي |
+| **آمن للاختبار** | تقدر تبدأ بـ **2 سيرفو** موصولين وتختبر — **ما يضر** ESP32 |
+| **نحن شغّالين** | المشروع يعمل بـ **2 في كل خطوة** — مو لازم الأربعة يتحركون بنفس اللحظة |
+| **تحسين** | مصدر 5V خارجي (2A+) للسيرفوات إذا تبي الأربعة مع بعض لاحقًا |
 
 ---
 
@@ -169,7 +169,7 @@ Mechanics/
    const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";  // كلمة سر WiFi
    ```
 4. Board: **ESP32 Dev Module** | Monitor: **115200**
-5. **افصل أسلاك السيرvo** أثناء Upload إذا reboot loop.
+5. **افصل أسلاك السيرفو** أثناء Upload إذا reboot loop.
 6. Upload → انتظر `Ready` في Serial Monitor.
 
 ### زوايا Neutral (بعد المعايرة)
@@ -185,7 +185,7 @@ Mechanics/
 
 | المجلد | متى تستخدمه |
 |--------|-------------|
-| `servo_one_io16` | أول اختبار — سيرvo واحد |
+| `servo_one_io16` | أول اختبار — سيرفو واحد |
 | `robodog_calibrate` | ضبط neutral قبل mqtt |
 | `robodog_test` | اختبار أرجل من Serial |
 | `robodog_sweep_test` | sweep زوايا |
@@ -246,7 +246,7 @@ ledcWrite(pin, duty);
    ```
 4. اختر **تحكم يدوي** (`manual.html`) أو **تحكم بالصوت** (`voice.html`)
 5. انتظر **MQTT: متصل ✓**
-6. **يدوي:** اضغط ↑ أمام · ↓ خلف · 👋 تلوiح
+6. **يدوي:** اضغط ↑ أمام · ↓ خلف · 👋 تلويح
 7. **صوت:** اختر عربي/English → 🎤 → قل **سلm** أو **forward**
 
 ### 💻 التحكم من اللابتوب
@@ -258,12 +258,12 @@ ledcWrite(pin, duty);
    https://webtask1.free.je/h/index.html?v=6
    ```
 4. **يدوي:** `manual.html` — أزرار أمام/خلف/مصافحة
-5. **صوت:** `voice.html` — الميكروفون يحتاج إذن المتصفh
+5. **صوت:** `voice.html` — الميكروفون يحتاج إذن المتصفح
 6. ESP32 لازم على **WiFi** — اللابتوب يحتاج **إنترنت** فقط (MQTT عبر الإنترنت)
 
 | | جوال | لابتوب |
 |--|------|--------|
-| المتصفh | Chrome / Safari | Chrome / Edge |
+| المتصفح | Chrome / Safari | Chrome / Edge |
 | الشبكة | WiFi أو 4G | WiFi + إنترنت |
 | HTTPS | ✅ InfinityFree | ✅ InfinityFree |
 | `file://` محلي | ❌ | ❌ (MQTT ما يشتغل) |
@@ -347,7 +347,7 @@ web/h/
 
 | # | الوصف | الرابط |
 |---|--------|--------|
-| 1 | شرح مبسط لحركة السيرvo لأرجل الروبوت | [YouTube Shorts ↗](https://youtube.com/shorts/KG-kgXi6Zhg) |
+| 1 | شرح مبسط لحركة السيرفو لأرجل الروبوت | [YouTube Shorts ↗](https://youtube.com/shorts/KG-kgXi6Zhg) |
 | 2 | تشبيك الروبوت — Breadboard + ESP32 | [YouTube ↗](https://youtu.be/DsWuTCv1QBQ) |
 
 ---
@@ -381,8 +381,8 @@ web/h/
 | FL لا تتحرك | FL=**16** FR=**4** |
 | IO27 لا يعمل | لا تستخدمه |
 | Panel غير متصل | InfinityFree + HTTPS — لا `file://` |
-| المشي بطi | طبيعي — **لا grip**؛ اضغط `f` عدة مرات |
-| USB ضعيف / reboot | طبيعي — Gait يحرّك **2 سيرvo** فقط؛ جرّب 2 للاختبار |
+| المشي بطء | طبيعي — **لا grip**؛ اضغط `f` عدة مرات |
+| USB ضعيف / reboot | طبيعي — Gait يحرّك **2 سيرفو** فقط؛ جرّب 2 للاختبار |
 
 > كامل: [`04-TROUBLESHOOTING.md`](04-TROUBLESHOOTING.md)
 
