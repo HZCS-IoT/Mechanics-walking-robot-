@@ -209,26 +209,34 @@ ledcWrite(pin, duty);
 
 ## 6. MQTT — كيف يصل الأمر للروبوت
 
+> **شرح مفصل + خطوات الربط:** [`02-MQTT.md`](02-MQTT.md)
+
+### ربط سريع (3 خطوات)
+
+| # | ESP32 | اللوحة |
+|---|-------|--------|
+| 1 | WiFi في `.ino` → Upload → `Ready` | ارفع `web/h/` → InfinityFree |
+| 2 | يتصل تلقائي بـ `broker.hivemq.com:1883` | افتح الرابط → `MQTT: متصل ✓` |
+| 3 | Serial: `>>> MQTT: f` عند الأمر | اضغط زr → الروبوت يتحرك |
+
 ```
-[جوال] ──publish──► broker.hivemq.com ──► ESP32 ──► Servos
+[جوال/لابتop] ──publish──► broker.hivemq.com ──► ESP32 ──► Servos
+                  :8884/wss              :1883
 ```
 
 | | القيمة |
 |--|--------|
 | Broker | `broker.hivemq.com` |
+| Topic | `smartmethods/robodog/command` |
 | Port ESP32 | `1883` |
 | Port Web | `8884` (WSS) |
-| Topic | `smartmethods/robodog/command` |
 
 | رسالة | الحركة |
 |-------|--------|
-| `f` | أمام |
-| `b` | خلف |
-| `S` | وقوف |
-| `wL` / `wR` | مصافحة |
-| `j` | جلس |
+| `f` / `b` / `S` / `wL` / `wR` / `j` | أمام · خلف · وقوف · مصافحة · جلس |
 
-> تفاصيل: [`02-MQTT.md`](02-MQTT.md)
+> **اللوحة والESP32 ما يحتاجون نفس WiFi** — الربط عبر Broker.  
+> **اختبار بدون لوحة:** MQTT Explorer — راجع [`02-MQTT.md`](02-MQTT.md).
 
 ---
 
