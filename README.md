@@ -21,12 +21,13 @@
 | | |
 |--|--|
 | **تبي تسوي زيي؟** | [خطوات التقليد](docs/robodog/README.md#2-️-تبي-تسوي-زيي--خطوات-التقليد) |
+| **تحكم جوال / لابتوب** | [خطوات اللوحة](docs/robodog/README.md#7-لوحة-التحكم-control-panel) |
 | Firmware | [`esp32/robodog_mqtt/`](esp32/robodog_mqtt/) |
 | Control Panel | [`web/h/`](web/h/) |
-| فيديوهات تعليمية | [سيرفو · تشبيك](docs/robodog/README.md#12-فيديوهات-تعليمية-للمتابعين) |
-| **فيديو تسليم Task** | [3 حركات](docs/robodog/README.md#13-فيديو-تسليم-task-mechanics-منفصل) |
+| **تشبيك ESP32** | [YouTube ↗](https://youtu.be/DsWuTCv1QBQ) |
 
-> **ملاحظة:** المشي **بطء** — **لا grip** في الأقدام → اضغط «أمام» **عدة مرات**.
+> **ملاحظة:** المشي **بطء** — **لا grip** في الأقدام → اضغط «أمام» **عدة مرات**.  
+> **طاقة:** المشi يحرّك **2 سيرvo** في كل خطoة — تشغيل 2 للاختبار **آمن** ([شرح](docs/robodog/README.md#3-المكونات-والتشبيك)).
 
 ---
 
@@ -63,10 +64,10 @@ git clone https://github.com/HZCS-IoT/Mechanics-walking-robot-.git
 ```
 
 1. اقرأ [`docs/robodog/README.md`](docs/robodog/README.md)
-2. عدّل WiFi في `esp32/robodog_mqtt/robodog_mqtt.ino`
-3. ارفع Firmware على ESP32
+2. شبّك حسب [فيديو YouTube](https://youtu.be/DsWuTCv1QBQ)
+3. عدّل WiFi في `esp32/robodog_mqtt/robodog_mqtt.ino` → Upload
 4. ارفع `web/h/` على InfinityFree
-5. جرّب `manual.html` و `voice.html`
+5. **جوال أو لابتوب:** افتح `https://webtask1.free.je/h/index.html?v=6`
 
 ---
 

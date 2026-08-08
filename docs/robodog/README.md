@@ -67,15 +67,15 @@
 | **1** | Clone المستودع | `Mechanics-walking-robot-` | [الرابط](https://github.com/HZCS-IoT/Mechanics-walking-robot-) |
 | **2** | اقرأ الدليل (هذا الملف) | `docs/robodog/README.md` | من الألف للياء |
 | **3** | افهم LEDC (لا Servo.h) | [`docs/robodog/05-ESP32-LEDC.md`](05-ESP32-LEDC.md) | مهم قبل الرفع |
-| **4** | شبّك الأسلاك | [`esp32/robodog_mqtt/`](../../esp32/robodog_mqtt/) + [فيديو التشبيك](#12-فيديوهات-تعليمية-للمتابعين) | FL=16 FR=4 RL=25 RR=22 |
+| **4** | شبّك الأسلاك | [فيديو YouTube ↗](https://youtu.be/DsWuTCv1QBQ) + [`esp32/robodog_mqtt/`](../../esp32/robodog_mqtt/) | FL=16 FR=4 RL=25 RR=22 |
 | **5** | اختبر سيرvo واحد | [`esp32/servo_one_io16/`](../../esp32/servo_one_io16/) | GPIO16 |
 | **6** | معايرة neutral | [`esp32/robodog_calibrate/`](../../esp32/robodog_calibrate/) | انسخ القيم لـ mqtt |
 | **7** | عدّل WiFi وارفع Firmware | [`esp32/robodog_mqtt/robodog_mqtt.ino`](../../esp32/robodog_mqtt/robodog_mqtt.ino) | `YOUR_WIFI_NAME` |
 | **8** | تأكد Serial Monitor | `Ready` على 115200 | MQTT متصل |
 | **9** | افهم MQTT | [`docs/robodog/02-MQTT.md`](02-MQTT.md) | Topic + أوامر |
-| **10** | ارفع لوحة التحكم | [`web/h/`](../../web/h/) → InfinityFree | [03-CONTROL-PANEL.md](03-CONTROL-PANEL.md) |
-| **11** | جرّب يدوي | `manual.html?v=6` | أمام · خلف · مصافحة |
-| **12** | جرّب صوت | `voice.html?v=6` | عربي / English |
+| **10** | ارفع لوحة التحكم | [`web/h/`](../../web/h/) → InfinityFree | [03-CONTROL-PANEL.md](03-CONTROL-PANEL.md) — **جوال أو لابتوب** |
+| **11** | جرّب من **الجوال** | `index.html?v=6` → manual أو voice | Chrome/Safari + WiFi أو 4G |
+| **12** | جرّب من **اللابتوب** | نفس الرابط في Chrome/Edge | HTTPS مطلوب (InfinityFree) |
 | **13** | إذا صار خطأ | [`docs/robodog/04-TROUBLESHOOTING.md`](04-TROUBLESHOOTING.md) | حلول جاهزة |
 
 ### مسار المجلدات (بالترتيب)
@@ -102,14 +102,14 @@ Mechanics/
 
 - [ ] **1.** Clone + فتح `docs/robodog/README.md`
 - [ ] **2.** قراءة [`05-ESP32-LEDC.md`](05-ESP32-LEDC.md)
-- [ ] **3.** تشبيك حسب [فيديو Breadboard](#12-فيديوهات-تعليمية-للمتابعين)
+- [ ] **3.** تشبيك حسب [فيديو YouTube — Breadboard + ESP32](https://youtu.be/DsWuTCv1QBQ)
 - [ ] **4.** رفع `servo_one_io16` → السيرvo يتحرك
 - [ ] **5.** رفع `robodog_calibrate` → تعديل neutral → نسخ للـ mqtt
 - [ ] **6.** تعديل WiFi في `robodog_mqtt.ino` → Upload
 - [ ] **7.** Serial Monitor → `Ready`
 - [ ] **8.** رفع `web/h/` كامل على InfinityFree
-- [ ] **9.** فتح `manual.html` → جرّب `f` · `b` · `wR`
-- [ ] **10.** فتح `voice.html` → قل **سلم** أو **forward**
+- [ ] **9.** **جوال:** افتح الرابط → `manual.html` → جرّب `f` · `wR`
+- [ ] **10.** **لابتوب:** نفس الرابط في Chrome → `voice.html` → قل **سلم** أو **forward**
 - [ ] **11.** إذا مشكلة → [`04-TROUBLESHOOTING.md`](04-TROUBLESHOOTING.md)
 
 ---
@@ -136,6 +136,20 @@ Mechanics/
 | **RR** (Rear Right) | **22** | خلف يمين |
 
 > **IO27 معطّل** — لا تستخدمه.
+
+### 🎬 فيديو التشبيك (Breadboard + ESP32)
+
+**[YouTube ↗ — طريقة تشبيك الروبوت](https://youtu.be/DsWuTCv1QBQ)**
+
+### ⚡ الطاقة — تشغيل 2 سيرvo فقط (لا يضر)
+
+| نقطة | التفسير |
+|------|---------|
+| **Gait diagonal** | المشي يحرّك **زوجين فقط** في كل مرحلة: FL+RR ثم FR+RL — **مو الأربعة مع بعض** |
+| **USB محدود** | USB اللابتوب قد **ما يكفي** لتشغيل 4 سيرvoات تحت حمل — طبيعي |
+| **آمن للاختبار** | تقدر تبدأ بـ **2 سيرvo** موصولين وتختبر — **ما يضر** ESP32 |
+| **نحن شغّالين** | المشروع يعمل بـ **2 في كل خطoة** — مو لازم الأربعة يتحركون بنفس اللحظة |
+| **تحسين** | مصدر 5V خارجي (2A+) للسيرvoات إذا تبي الأربعة مع بعض لاحقًا |
 
 ---
 
@@ -219,6 +233,41 @@ ledcWrite(pin, duty);
 ---
 
 ## 7. لوحة التحكم (Control Panel)
+
+> **نفس اللوحة** تشتغل من **الجوال** أو **اللابتوب** — اختر الطريقة اللي تناسبك.
+
+### 📱 التحكم من الجوال
+
+1. ارفع `web/h/` على InfinityFree (مرة واحدة) — راجع [`03-CONTROL-PANEL.md`](03-CONTROL-PANEL.md)
+2. افتح **Chrome** أو **Safari** على الجوال
+3. ادخل الرابط (WiFi أو **4G** — ما يحتاج نفس شبكة ESP32):
+   ```
+   https://webtask1.free.je/h/index.html?v=6
+   ```
+4. اختر **تحكم يدوي** (`manual.html`) أو **تحكم بالصوت** (`voice.html`)
+5. انتظر **MQTT: متصل ✓**
+6. **يدوي:** اضغط ↑ أمام · ↓ خلف · 👋 تلوiح
+7. **صوت:** اختر عربي/English → 🎤 → قل **سلm** أو **forward**
+
+### 💻 التحكم من اللابتوب
+
+1. نفس خطوة الرفع على InfinityFree
+2. افتح **Chrome** أو **Edge** (HTTPS مطلوب — **لا تفتح** `file://` محلي)
+3. نفس الرابط:
+   ```
+   https://webtask1.free.je/h/index.html?v=6
+   ```
+4. **يدوي:** `manual.html` — أزرار أمام/خلف/مصافحة
+5. **صوت:** `voice.html` — الميكروفون يحتاج إذن المتصفh
+6. ESP32 لازم على **WiFi** — اللابتوب يحتاج **إنترنت** فقط (MQTT عبر الإنترنت)
+
+| | جوال | لابتوب |
+|--|------|--------|
+| المتصفh | Chrome / Safari | Chrome / Edge |
+| الشبكة | WiFi أو 4G | WiFi + إنترنت |
+| HTTPS | ✅ InfinityFree | ✅ InfinityFree |
+| `file://` محلي | ❌ | ❌ (MQTT ما يشتغل) |
+| الصوت | 🎤 + إذن mic | 🎤 + إذن mic |
 
 ### الملفات — [`web/h/`](../../web/h/)
 
@@ -331,8 +380,9 @@ web/h/
 | `Servo.h` error | LEDC — [`05-ESP32-LEDC.md`](05-ESP32-LEDC.md) |
 | FL لا تتحرك | FL=**16** FR=**4** |
 | IO27 لا يعمل | لا تستخدمه |
-| Panel غير متصل | InfinityFree + HTTPS |
-| المشي بطء | طبيعي — اضغط `f` عدة مرات |
+| Panel غير متصل | InfinityFree + HTTPS — لا `file://` |
+| المشي بطi | طبيعي — **لا grip**؛ اضغط `f` عدة مرات |
+| USB ضعيف / reboot | طبيعي — Gait يحرّك **2 سيرvo** فقط؛ جرّب 2 للاختبار |
 
 > كامل: [`04-TROUBLESHOOTING.md`](04-TROUBLESHOOTING.md)
 
