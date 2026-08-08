@@ -23,7 +23,8 @@
 | **تبي تسوي زيي؟** | [خطوات التقليد](docs/robodog/README.md#2-️-تبي-تسوي-زيي--خطوات-التقليد) |
 | **تحكم جوال / لابتوب** | [خطوات اللوحة](docs/robodog/README.md#7-لوحة-التحكم-control-panel) |
 | Firmware | [`esp32/robodog_mqtt/`](esp32/robodog_mqtt/) |
-| Control Panel | [`web/h/`](web/h/) |
+| Control Panel | [`web/h/`](web/h/) — [README](web/h/README.md) → `h/` على InfinityFree |
+| Docs | [`docs/robodog/README.md`](docs/robodog/README.md) — **19 قسم** |
 | **تشبيك ESP32** | [YouTube ↗](https://youtu.be/DsWuTCv1QBQ) |
 
 > **ملاحظة:** المشي **بطء** — **لا grip** في الأقدام → اضغط «أمام» **عدة مرات**.  

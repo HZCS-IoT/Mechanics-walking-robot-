@@ -23,6 +23,9 @@
 14. [المشاكل والحلول](#14-المشاكل-والحلول)
 15. [هيكل الملفات في المستودع](#15-هيكل-الملفات-في-المستودع)
 16. [ملفات تفصيلية إضافية](#16-ملفات-تفصيلية-إضافية)
+17. [مصطلحات — شرح كل كلمة](#17-مصطلحات--شرح-كل-كلمة)
+18. [لوحتا تحكم — أيهما تستخدم؟](#18-لوحتا-تحكم--أيهما-تستخدم)
+19. [تثبيت Arduino IDE — خطوة بخطوة](#19-تثبيت-arduino-ide--خطوة-بخطوة)
 
 ---
 
@@ -73,10 +76,11 @@
 | **7** | عدّل WiFi وارفع Firmware | [`esp32/robodog_mqtt/robodog_mqtt.ino`](../../esp32/robodog_mqtt/robodog_mqtt.ino) | `YOUR_WIFI_NAME` |
 | **8** | تأكد Serial Monitor | `Ready` على 115200 | MQTT متصل |
 | **9** | افهم MQTT | [`docs/robodog/02-MQTT.md`](02-MQTT.md) | Topic + أوامر |
-| **10** | ارفع لوحة التحكم | [`web/h/`](../../web/h/) → InfinityFree | [03-CONTROL-PANEL.md](03-CONTROL-PANEL.md) — **جوال أو لابتوب** |
+| **10** | ارفع لوحة التحكم | [`web/h/`](../../web/h/) → مجلد **`h/`** على InfinityFree | [03-CONTROL-PANEL.md](03-CONTROL-PANEL.md) — **وين تحط الملفات** |
 | **11** | جرّب من **الجوال** | `index.html?v=6` → manual أو voice | Chrome/Safari + WiFi أو 4G |
 | **12** | جرّب من **اللابتوب** | نفس الرابط في Chrome/Edge | HTTPS مطلوب (InfinityFree) |
 | **13** | إذا صار خطأ | [`docs/robodog/04-TROUBLESHOOTING.md`](04-TROUBLESHOOTING.md) | حلول جاهزة |
+| **14** | Sketches مساعدة | [`06-HELPER-SKETCHES.md`](06-HELPER-SKETCHES.md) | ترتيب الاختبار قبل MQTT |
 
 ### مسار المجلدات (بالترتيب)
 
@@ -134,6 +138,14 @@ Mechanics/
 | **FR** (Front Right) | **4** | أمام يمين — زوايا **معكوسة** عن FL |
 | **RL** (Rear Left) | **25** | خلف يسار |
 | **RR** (Rear Right) | **22** | خلف يمين |
+
+**أسلاك السيرfو (3 لكل واحد):**
+
+| سلك | يوصل على | ملاحظة |
+|-----|----------|--------|
+| **Signal** (برتقali/أصفر) | GPIO المناسب | إشارة PWM من ESP32 |
+| **VCC** (أحمر) | **5V** | **لا** 3.3V — SG90 يحتاج 5V |
+| **GND** (بني/أسود) | **GND مشترك** | ESP32 + كل السيرfوات على نفس GND |
 
 > **IO27 معطّل** — لا تستخدمه.
 
@@ -217,10 +229,10 @@ ledcWrite(pin, duty);
 |---|-------|--------|
 | 1 | WiFi في `.ino` → Upload → `Ready` | ارفع `web/h/` → InfinityFree |
 | 2 | يتصل تلقائي بـ `broker.hivemq.com:1883` | افتح الرابط → `MQTT: متصل ✓` |
-| 3 | Serial: `>>> MQTT: f` عند الأمر | اضغط زr → الروبوت يتحرك |
+| 3 | Serial: `>>> MQTT: f` عند الأمر | اضغط زر → الروبوت يتحرك |
 
 ```
-[جوال/لابتop] ──publish──► broker.hivemq.com ──► ESP32 ──► Servos
+[جوال/لابتوب] ──publish──► broker.hivemq.com ──► ESP32 ──► Servos
                   :8884/wss              :1883
 ```
 
@@ -290,13 +302,18 @@ web/h/
     └── voice-commands.js
 ```
 
-### رفع InfinityFree
+### رفع InfinityFree — وين تحط الملفات؟
 
-1. File Manager → مجلد **`h/`**
-2. ارفع **كل** محتويات `web/h/`
-3. افتح: `https://YOUR-SITE.free.je/h/index.html?v=6`
+```
+GitHub: web/h/*  ──ارفع──►  الاستضافة: public_html/h/*
+```
 
-> تفاصيل: [`03-CONTROL-PANEL.md`](03-CONTROL-PANEL.md)
+1. File Manager → `public_html` → مجلد **`h/`**
+2. ارفع **كل** محتويات [`web/h/`](../../web/h/) (3 HTML + css/ + js/)
+3. **لا** ترفع مجلد `web/` — فقط محتويات `h/`
+4. افتح: `https://YOUR-SITE.free.je/h/index.html?v=6`
+
+> **شرح مفصل + أخطاء الرفع:** [`03-CONTROL-PANEL.md`](03-CONTROL-PANEL.md)
 
 ---
 
@@ -320,15 +337,20 @@ web/h/
 
 ## 9. حركة المشي
 
+> **Diagonal Gait** — زوجان متقابلان — **2 سيرfو** في كل مرحلة.
+
 ```
-خطوة 1:  FL + RR  →  neutral
-خطوة 2:  FR + RL  →  neutral
+خطوة f (أمام):
+  مرحلة 1:  FL −20°  +  RR −20°  →  neutral
+  مرحلة 2:  FR +20°  +  RL +20°  →  neutral
 ```
 
-| | FL | FR |
-|--|-----|-----|
-| أمام | −20 | +20 |
-| خلف | +20 | −20 |
+| | FL | FR | لماذا FR مختلف؟ |
+|--|-----|-----|-----------------|
+| أمام | −20 | +20 | FR مركّب **معكوس** |
+| خلف | +20 | −20 | نفس الفكرة |
+
+> كل `f` = **خطوة واحدة** — للمسافة: اضغط **عدة مرات**.
 
 ---
 
@@ -406,13 +428,15 @@ Mechanics/
 │   ├── servo_one_io16/     ← اختبار واحد
 │   └── ...
 ├── web/h/                  ← Control Panel ★
+│   └── README.md           ← شرح كل ملف
 └── docs/robodog/           ← التوثيق ★
     ├── README.md           ← هذا الملف
     ├── 01-CODE.md
     ├── 02-MQTT.md
     ├── 03-CONTROL-PANEL.md
     ├── 04-TROUBLESHOOTING.md
-    └── 05-ESP32-LEDC.md
+    ├── 05-ESP32-LEDC.md
+    └── 06-HELPER-SKETCHES.md
 ```
 
 ---
@@ -426,6 +450,58 @@ Mechanics/
 | [03-CONTROL-PANEL.md](03-CONTROL-PANEL.md) | InfinityFree |
 | [04-TROUBLESHOOTING.md](04-TROUBLESHOOTING.md) | أخطاء وحلول |
 | [05-ESP32-LEDC.md](05-ESP32-LEDC.md) | LEDC |
+| [06-HELPER-SKETCHES.md](06-HELPER-SKETCHES.md) | كل sketch في esp32/ |
+| [web/h/README.md](../../web/h/README.md) | شرح ملفات اللوحة |
+
+---
+
+## 17. مصطلحات — شرح كل كلمة
+
+| المصطلح | الشرح |
+|---------|-------|
+| **ESP32** | لوحة microcontroller فيها WiFi — «دماغ» الروبوت |
+| **SG90** | سيرfو صغير — يحرّk رجل بزاوية 0–180° |
+| **GPIO** | منفذ رقمي على ESP32 — Signal السيرfو يوصل هنا |
+| **LEDC** | طريقة ESP32 لتوليد PWM — بديل Servo.h |
+| **PWM** | إشارة نبضية — السيرfو يفهم «عرض النبضة» = زاوية |
+| **Neutral** | زاوية الوقوف — الروبوت مستقر |
+| **Gait** | نمط المشي — عندنا diagonal (FL+RR ثم FR+RL) |
+| **MQTT** | بروتوكول رسائل — لوحة → Broker → ESP32 |
+| **Broker** | وسيط (HiveMQ) — ينقل الرسائل |
+| **Topic** | «عنوان» الرسالة — `smartmethods/robodog/command` |
+| **WSS** | MQTT عبر HTTPS — للمتصفh |
+| **InfinityFree** | استضافة مجانية — HTTPS للوحة |
+| **BodyV2** | تصميم الكلب الحالي — 4 سيرfو |
+| **Grip** | «قبضة» في القدم — **لا يوجد** → المشي بطيء |
+
+---
+
+## 18. لوحتا تحكم — أيهما تستخدم؟
+
+| | **لوحة BodyV2 (هذا المشروع)** | لوحة Algorithm (مستقبلي) |
+|--|-------------------------------|---------------------------|
+| **المسار** | [`web/h/`](../../web/h/) | XAMPP — روبوت 12–14 DOF |
+| **الحركات** | أمام · خلف · مصافحة | + يمين · يسار |
+| **الروبوت** | 4× SG90 | Task 1 Algorithm |
+| **الاستضافة** | InfinityFree | محلي / XAMPP |
+
+> **المتابع:** Clone هذا الريpo → [`web/h/`](../../web/h/) → InfinityFree.
+
+---
+
+## 19. تثبيت Arduino IDE — خطوة بخطوة
+
+| # | ماذا | كيف |
+|---|------|-----|
+| 1 | Arduino IDE | [arduino.cc](https://www.arduino.cc/en/software) — Download |
+| 2 | ESP32 Board | File → Preferences → Additional URLs: `https://espressif.github.io/arduino-esp32/package_esp32_index.json` |
+| 3 | Board Manager | Tools → Board → Boards Manager → **esp32** → Install |
+| 4 | اختيار Board | Tools → Board → **ESP32 Dev Module** |
+| 5 | Port | Tools → Port → COM (بعد USB) |
+| 6 | Serial | 115200 baud |
+| 7 | Upload | افتح `robodog_mqtt.ino` → سهم Upload |
+
+> **أول مرة؟** ابدأ بـ [`servo_one_io16`](../../esp32/servo_one_io16/) — [`06-HELPER-SKETCHES.md`](06-HELPER-SKETCHES.md)
 
 ---
 
